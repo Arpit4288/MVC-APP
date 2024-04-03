@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/Arpit4288/MVC-APP.git', branch: 'main'
+                git url: 'https://github.com/Arpit4288/MVC-APP.git', branch: 'master'
             }
         }
         
