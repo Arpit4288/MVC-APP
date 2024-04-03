@@ -7,6 +7,12 @@ pipeline {
                 git url: 'https://github.com/Arpit4288/MVC-APP.git', branch: 'master'
             }
         }
+
+        stage('Files'){
+            steps{
+                sh 'ls -l'
+            }
+        }
         
         stage('Build') {
             steps {
