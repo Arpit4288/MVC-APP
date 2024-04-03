@@ -15,7 +15,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Use the withDotNet section for build step
-                withDotNet(dotNetVersion: env.DOTNET_SDK_VERSION) {
+                withDotNet(specificSdkVersion: env.DOTNET_SDK_VERSION) {
                     // Use the dotnetBuild builder to run "dotnet build" command
                     dotnetBuild() 
                 }
@@ -25,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 // Similarly, you can add test steps using withDotNet
-                withDotNet(dotNetVersion: env.DOTNET_SDK_VERSION) {
+                withDotNet(specificSdkVersion: env.DOTNET_SDK_VERSION) {
                     // Use the dotnetTest builder to run "dotnet test" command
                     dotnetTest()
                 }
