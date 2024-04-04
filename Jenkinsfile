@@ -10,11 +10,11 @@ pipeline {
             }
         }
 
-        stage('List Content') {
+        stage('Check Content') {
             steps {
-                echo 'Starting List Content stage...'
+                echo 'Starting Check Content stage...'
                 sh 'ls -l'
-                echo 'List stage completed.'
+                echo 'Check Content stage completed.'
             }
         }
         
