@@ -95,7 +95,6 @@ pipeline {
                 script {
                     echo 'Starting RunContainer Stage..'
                     // Run the new container
-                    // sh "docker run -d -p 8081:8081 -p 51000:50000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:${IMAGE_TAG}"
                     sh "docker run -d --name ${CONTAINER_NAME} -p 8000:80 ${IMAGE_NAME}:${IMAGE_TAG}"
                     echo 'Run Container Stage completed.'
                 }
