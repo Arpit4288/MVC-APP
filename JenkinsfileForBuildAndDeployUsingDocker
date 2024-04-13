@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'arpitdhuriya/mvcapp'
+        IMAGE_NAME = 'arpit410/dotnetwebapp'
         IMAGE_TAG = 'latest'
+        CONTAINER_NAME = 'dotnetwebappcontainer'
     }
 
     stages {
@@ -12,48 +13,91 @@ pipeline {
                 checkout scm
             }
         }
+    stage('Check Content') {
+            steps {
+                echo 'Starting Check Content stage...'
+                sh 'ls -l'
+                echo 'Check Content stage completed.'
+            }
+        }
 
         stage('Build') {
             steps {
+                echo 'Starting Build stage...'
                 sh 'dotnet build --configuration Release'
+                echo 'Build stage completed.'
             }
         }
 
+
         stage('Test') {
             steps {
+                echo 'Starting Test stage...'
                 sh 'dotnet test'
+                echo 'Test stage completed.'
             }
         }
+
 
         stage('Docker Build') {
             steps {
                 // Build your Docker image
+                echo 'Starting Docker Build Stage..'
                 script {
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
+                echo 'Docker Build Stage completed.'
             }
         }
 
         stage('Docker Push') {
             steps {
                 script {
+                    echo 'Starting Docker push stage..'
                     // Login to Docker Hub (or your Docker registry)
                     // Make sure to set your credentials in Jenkins credential store
                     docker.withRegistry('https://index.docker.io/v1/', 'docker_login') {
                         // Push your Docker image
                         docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
+                    echo 'Docker push stage completed'
                 }
             }
         }
+       stage('Check and Cleanup Container') {
+            steps {
+                script {
+                    // Check if the container exists
+                    def containerExists = sh(script: 'docker ps -a --format "{{.Names}}" | grep -q ${CONTAINER_NAME}', returnStatus: true) == 0
+                    // Check if the container is running
+                    def containerRunning = sh(script: 'docker ps --format "{{.Names}}" | grep -q ${CONTAINER_NAME}', returnStatus: true) == 0
 
+                    // Stop and remove the container if it exists and is stopped
+                    if (containerRunning) {
+                        sh 'docker stop ${CONTAINER_NAME} || true'
+                        sh 'docker rm ${CONTAINER_NAME} || true'
+                        echo 'Existing container stopped and removed.'
+                    }
+                    // Print a message if the container is already running
+                    else if (containerExists) {
+                        sh 'docker rm ${CONTAINER_NAME} || true'
+                        echo 'Container removed successfully.'
+                    }
+                    // Print a message if the container does not exist
+                    else {
+                        echo 'Container is not running and does not exists.'
+                    }
+                }
+            }
+        }
         stage('Run Container') {
             steps {
                 script {
-                    // Stop the currently running container (if any)
-                    sh 'docker rm -f ${IMAGE_NAME} || true'
+                    echo 'Starting RunContainer Stage..'
                     // Run the new container
-                    sh "docker run -d --name aspnetapp -p 8000:80 ${IMAGE_NAME}:${IMAGE_TAG}"
+                    // sh "docker run -d -p 8081:8081 -p 51000:50000 --name ${CONTAINER_NAME} ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker run -d --name ${CONTAINER_NAME} -p 8000:80 ${IMAGE_NAME}:${IMAGE_TAG}"
+                    echo 'Run Container Stage completed.'
                 }
             }
         }
